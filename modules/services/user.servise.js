@@ -19,6 +19,7 @@ class UserService {
     const hashPwd = await bcrypt.hash(password, 3);
     const activationLink = uuid.v4();
     const user = await userModel.create({ email, password: hashPwd, activationLink });
+    // eslint-disable-next-line no-use-before-define
     await mailService.sendActivationLink(email, setLink(activationLink));
     const userDto = new UserDto(user); // { _id, email, isActivared }
     const tokenPair = tokenService.generateTokens({ ...userDto });
