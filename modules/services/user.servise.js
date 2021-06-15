@@ -6,13 +6,14 @@ const userModel = require('../models/user.model');
 const mailService = require('./mail.service');
 const UserDto = require('../dtos/user.dto');
 const tokenService = require('./token.service');
+const ApiError = require('../helpers/error.helper');
 
 class UserService {
   async registration(email, password) {
     const candidate = await userModel.findOne({ email });
 
     if (candidate) {
-      throw new Error(`User with ${email} already exists`);
+      throw ApiError.BadRequest(`User with ${email} already exists`);
     }
 
     const hashPwd = await bcrypt.hash(password, 3);
@@ -32,7 +33,7 @@ class UserService {
   async activate(activationLink) {
     const user = await userModel.findOne({ activationLink });
     if (!user) {
-      throw new Error('Link not accepted');
+      throw ApiError.BadRequest('Link not accepted');
     }
 
     user.isActivated = true;

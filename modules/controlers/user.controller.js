@@ -9,7 +9,7 @@ class UsersController {
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
       res.send(userData);
     } catch (err) {
-      console.log(err);
+      next(err);
     }
   }
 
@@ -18,7 +18,7 @@ class UsersController {
       const { email, password } = req.body;
       res.send({ email, password });
     } catch (err) {
-      console.log(err);
+      next(err);
     }
   }
 
@@ -26,7 +26,7 @@ class UsersController {
     try {
 
     } catch (err) {
-      console.log(err);
+      next(err);
     }
   }
 
@@ -36,7 +36,7 @@ class UsersController {
       await userService.activate(link);
       return res.redirect(process.env.CLIENT_URL);
     } catch (err) {
-      console.log(err);
+      next(err);
     }
   }
 
@@ -44,7 +44,7 @@ class UsersController {
     try {
 
     } catch (err) {
-      console.log(err);
+      next(err);
     }
   }
 
@@ -52,7 +52,7 @@ class UsersController {
     try {
       res.json(['123', '789']);
     } catch (err) {
-      console.log(err);
+      next(err);
     }
   }
 }

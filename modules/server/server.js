@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const usersRouter = require('../routers/users.router');
+const errorMiddleware = require('../middlewares/error.middleware');
 
 const PORT = process.env.PORT || 5000;
 const server = express();
@@ -13,6 +14,7 @@ server.use(express.json());
 server.use(cookieParser());
 server.use(cors());
 server.use('/api/v1', usersRouter);
+server.use(errorMiddleware);
 
 exports.start = async () => {
   try {
