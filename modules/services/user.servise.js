@@ -72,7 +72,7 @@ class UserService {
   }
 
   async refresh(refreshToken) {
-    if (refreshToken) {
+    if (!refreshToken) {
       throw ApiError.UnauthorizedError();
     }
     const userData = tokenService.validateRefreshToken(refreshToken);
@@ -89,6 +89,11 @@ class UserService {
       ...tokenPair,
       user: userDto
     };
+  }
+
+  async getAllUsers() {
+    const users = await userModel.find();
+    return users;
   }
 }
 

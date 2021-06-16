@@ -23,7 +23,7 @@ class UsersController {
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      const userData = await userService.login (email, password);
+      const userData = await userService.login(email, password);
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
       res.send(userData);
     } catch (err) {
@@ -66,7 +66,8 @@ class UsersController {
 
   async getAllUsers(req, res, next) {
     try {
-      res.json(['123', '789']);
+      const users = await userService.getAllUsers();
+      res.json(users);
     } catch (err) {
       next(err);
     }
