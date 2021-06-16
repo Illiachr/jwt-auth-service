@@ -21,7 +21,7 @@ class UserService {
     const user = await userModel.create({ email, password: hashPwd, activationLink });
     // eslint-disable-next-line no-use-before-define
     await mailService.sendActivationLink(email, setLink(activationLink));
-    const userDto = new UserDto(user); // { _id, email, isActivared }
+    const userDto = new UserDto(user); // { _id, email, isActivated }
     const tokenPair = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokenPair.refreshToken);
 
@@ -39,6 +39,61 @@ class UserService {
 
     user.isActivated = true;
     await user.save();
+  }
+
+  async login(email, password) {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      // TODO: This must be not found -> 404
+      throw ApiError.BadRequest(`User with ${email} not found`);
+    }
+
+    // TODO: isActivated?
+    if (!user.isActivated) {
+      throw new ApiError(403, `User with ${email} not activated. Please, follow activation link at your email.`);
+    }
+    const isPassEquals = await bcrypt.compare(password, user.password);
+    if (!isPassEquals) {
+      throw ApiError.BadRequest('Password not accepted');
+    }
+    const userDto = new UserDto(user);
+    const tokenPair = tokenService.generateTokens({ ...userDto });
+    await tokenService.saveToken(userDto.id, tokenPair.refreshToken);
+
+    return {
+      ...tokenPair,
+      user: userDto
+    };
+  }
+
+  async logout(refreshToken) {
+    const token = await tokenService.removeToken(refreshToken);
+    return token;
+  }
+
+  async refresh(refreshToken) {
+    if (!refreshToken) {
+      throw ApiError.UnauthorizedError();
+    }
+    const userData = tokenService.validateRefreshToken(refreshToken);
+    const tokenFromDb = tokenService.findToken(refreshToken);
+    if (!userData || !tokenFromDb) {
+      throw ApiError.UnauthorizedError();
+    }
+    const user = await userModel.findById(userData.id);
+    const userDto = new UserDto(user);
+    const tokenPair = tokenService.generateTokens({ ...userDto });
+    await tokenService.saveToken(userDto.id, tokenPair.refreshToken);
+
+    return {
+      ...tokenPair,
+      user: userDto
+    };
+  }
+
+  async getAllUsers() {
+    const users = await userModel.find();
+    return users;
   }
 }
 
