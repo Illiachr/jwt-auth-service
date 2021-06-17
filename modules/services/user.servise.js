@@ -24,7 +24,7 @@ class UserService {
     const userDto = new UserDto(user); // { _id, email, isActivated }
     const tokenPair = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokenPair.refreshToken);
-
+    // TODO: return Info: You activate your account
     return {
       ...tokenPair,
       user: userDto
